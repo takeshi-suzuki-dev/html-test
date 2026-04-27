@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Workplace English Chunks</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f5f3;color:#1a1a1a;padding:1.5rem}
+.wrap{max-width:900px;margin:0 auto}
+h1{font-size:18px;font-weight:500;margin-bottom:1.25rem}
+.top-controls{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:1.25rem;align-items:center}
+.mode-toggle{display:flex;border:1px solid #ccc;border-radius:8px;overflow:hidden}
+.mode-btn{padding:6px 14px;border:none;background:transparent;color:#333;cursor:pointer;font-size:13px;font-weight:500;transition:all .15s;white-space:nowrap}
+.mode-btn.active{background:#1a1a1a;color:#fff}
+.book-toggle{display:flex;gap:8px}
+.book-btn{padding:6px 16px;border:1px solid #ccc;border-radius:8px;background:transparent;color:#333;cursor:pointer;font-size:13px;font-weight:500;transition:all .15s}
+.book-btn.active{background:#e8e8e6;color:#1a1a1a;border-color:#aaa}
+.cat-tabs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:1rem}
+.cat-tab{padding:4px 12px;border-radius:20px;border:1px solid #ddd;background:transparent;color:#444;cursor:pointer;font-size:12px;transition:all .15s}
+.cat-tab.active{background:#e8e8e6;color:#1a1a1a;border-color:#aaa}
+.rot-tabs{display:flex;gap:8px;margin-bottom:1rem;flex-wrap:wrap}
+.rot-tab{padding:6px 18px;border-radius:8px;border:1px solid #ddd;background:#fff;color:#444;cursor:pointer;font-size:13px;font-weight:500;transition:all .15s}
+.rot-tab.active{background:#1a1a1a;color:#fff;border-color:#1a1a1a}
+.rot-tab.today{border-color:#2d7a44;color:#2d7a44}
+.rot-tab.today.active{background:#2d7a44;color:#fff}
+.info-bar{border-radius:8px;padding:.75rem 1rem;margin-bottom:1rem;font-size:12px}
+.info-bar.green{background:#e8f4ea;border:1px solid #b8dfc4;color:#2d7a44}
+.info-bar.gray{background:#eeede8;border:1px solid #ddd;color:#333}
+.info-bar strong{font-weight:500}
+.priority-pills{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.pill{background:#fff;border:1px solid #ddd;border-radius:20px;padding:3px 10px;font-size:12px;color:#1a1a1a}
+table{width:100%;border-collapse:collapse;background:#fff;border-radius:8px;overflow:hidden;border:1px solid #e0e0e0}
+thead th{font-size:11px;font-weight:500;color:#444;text-align:left;padding:8px 12px;border-bottom:1px solid #e0e0e0;background:#fafaf8}
+tbody tr{border-bottom:1px solid #f0f0ee}
+tbody tr:last-child{border-bottom:none}
+tbody tr:hover{background:#fafaf8}
+tbody tr.is-core{background:#f5fbf7}
+tbody tr.is-today{background:#eef8f1}
+tbody td{padding:10px 12px;font-size:13px;vertical-align:top;color:#1a1a1a}
+td.chunk{font-weight:500;min-width:200px}
+td.exp{color:#444;font-size:12px;min-width:160px}
+td.ex{font-style:italic;color:#444;font-size:12px}
+.core-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:#2d7a44;margin-right:6px;vertical-align:middle}
+.set-badge{display:inline-block;font-size:10px;font-weight:500;padding:1px 6px;border-radius:10px;margin-left:6px;vertical-align:middle}
+.set-a{background:#dbeafe;color:#1e4d8c}
+.set-b{background:#fef3c7;color:#92400e}
+.set-c{background:#f3e8ff;color:#6b21a8}
+.set-today{background:#dcfce7;color:#166534}
+.count-label{font-size:12px;color:#444;margin-bottom:.75rem}
+.book-section{display:none}
+.book-section.visible{display:block}
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>Workplace English Chunks</h1>
+
+<div class="top-controls">
+  <div class="mode-toggle">
+    <button class="mode-btn" onclick="switchMode('rotation')">Rotation</button>
+    <button class="mode-btn active" onclick="switchMode('active')">Active Core 32</button>
+    <button class="mode-btn" onclick="switchMode('reference')">Full Reference</button>
+  </div>
+  <div class="book-toggle" id="book-toggle">
+    <button class="book-btn active" onclick="switchBook(0)">Book 1 — Workplace</button>
+    <button class="book-btn" onclick="switchBook(1)">Book 2 — Natural</button>
+  </div>
+</div>
+
+<!-- ROTATION MODE -->
+<div id="rotation-panel" style="display:none">
+  <div class="info-bar green" style="margin-bottom:1rem">
+    <strong>Rotation system</strong> — 32 chunks split into 3 sets. Each set runs 3 days. Today = recommended first 10.
+  </div>
+  <div class="rot-tabs">
+    <button class="rot-tab today active" onclick="switchRot('today')">First 12</button>
+    <button class="rot-tab" onclick="switchRot('a')">Set A</button>
+    <button class="rot-tab" onclick="switchRot('b')">Set B</button>
+    <button class="rot-tab" onclick="switchRot('c')">Set C</button>
+  </div>
+  <div class="count-label" id="rot-count"></div>
+  <table><thead><tr><th>#</th><th>Chunk</th><th>When to use</th><th>Example</th><th>Book</th></tr></thead>
+  <tbody id="rot-rows"></tbody></table>
+</div>
+
+<!-- BOOK PANELS -->
+<div id="book-panels">
+<div id="book0" class="book-section visible">
+  <div id="b0-info" class="info-bar green">
+    <strong>Active Core 16</strong> — green rows = core set.
+  </div>
+  </div>
+  <div class="cat-tabs" id="cats0"></div>
+  <div class="count-label" id="count0"></div>
+  <table><thead><tr><th>#</th><th>Chunk</th><th>When to use</th><th>Example</th></tr></thead>
+  <tbody id="rows0"></tbody></table>
+</div>
+
+<div id="book1" class="book-section">
+  <div id="b1-info" class="info-bar green">
+    <strong>Active Core 16</strong> — green rows = core set.
+  </div>
+  </div>
+  <div class="cat-tabs" id="cats1"></div>
+  <div class="count-label" id="count1"></div>
+  <table><thead><tr><th>#</th><th>Chunk</th><th>When to use</th><th>Example</th></tr></thead>
+  <tbody id="rows1"></tbody></table>
+</div>
+</div>
+</div>
+
+<script>
+const CORE0=new Set([
+  "Just to make sure I understand...","Can I check one thing?","Just to be clear, ...",
+  "Could you take a look?","Can we go over this together?",
+  "Let me get back to you on that.","Let's come back to that later.",
+  "I'm stuck on this part.","I'm having trouble with ...","This isn't working as expected.",
+  "Sorry, could you say that again?","Sorry for the delay.",
+  "Let me know if I can help.","I can take care of that.",
+  "How's your day going?","How was your weekend?"
+]);
+const CORE1=new Set([
+  "It happened naturally.","It came naturally.","It started to feel natural.",
+  "I didn't force it.",
+  "I noticed that ...","I realized that ...","Looking back, ...",
+  "Somehow, ...","I guess ...","I feel like ...",
+  "Over time, ...","Before I knew it, ...",
+  "It just came out that way.","It turned out better than I expected.",
+  "That felt good.","That's huge.",
+  "Let me think for a moment.","I lost my train of thought."
+]);
+
+// Rotation sets (cross-book, 10-11 per set)
+const SET_TODAY=[
+  {chunk:"Just to make sure I understand...",exp:"Confirm politely",ex:"Just to make sure I understand, you want this by Friday, right?",book:"Workplace"},
+  {chunk:"Can I check one thing?",exp:"Short clarification",ex:"Can I check one thing? Which environment are we using?",book:"Workplace"},
+  {chunk:"Could you take a look?",exp:"Want someone to check",ex:"Could you take a look at this PR?",book:"Workplace"},
+  {chunk:"I'm stuck on this part.",exp:"Cannot move forward",ex:"I'm stuck on this part of the backend flow.",book:"Workplace"},
+  {chunk:"Let me get back to you on that.",exp:"Cannot answer right away",ex:"Let me get back to you on that.",book:"Workplace"},
+  {chunk:"It happened naturally.",exp:"Something changed without force",ex:"I didn't force it. It happened naturally.",book:"Natural"},
+  {chunk:"I didn't force it.",exp:"Improvement happened without pressure",ex:"I didn't force it. I just kept repeating it.",book:"Natural"},
+  {chunk:"I noticed that ...",exp:"Became aware of a pattern",ex:"I noticed that I speak faster when I'm prepared.",book:"Natural"},
+  {chunk:"Somehow, ...",exp:"Cannot fully explain it",ex:"Somehow, it was easier today.",book:"Natural"},
+  {chunk:"That felt good.",exp:"Something gave a satisfying feeling",ex:"That felt good. I spoke more smoothly today.",book:"Natural"},
+  {chunk:"Let me think for a moment.",exp:"Pause without silence",ex:"Let me think for a moment. I know I have something to say.",book:"Natural"},
+  {chunk:"I lost my train of thought.",exp:"Recover mid-conversation",ex:"Sorry, I lost my train of thought. Where was I?",book:"Natural"},
+];
+const SET_A=[
+  {chunk:"Just to make sure I understand...",exp:"Confirm politely",ex:"Just to make sure I understand, you want this by Friday, right?",book:"Workplace"},
+  {chunk:"Can I check one thing?",exp:"Short clarification",ex:"Can I check one thing? Which environment are we using?",book:"Workplace"},
+  {chunk:"Just to be clear, ...",exp:"Avoid misunderstanding",ex:"Just to be clear, this is only for internal use, right?",book:"Workplace"},
+  {chunk:"Could you take a look?",exp:"Want someone to check",ex:"Could you take a look at this PR?",book:"Workplace"},
+  {chunk:"Can we go over this together?",exp:"Review together",ex:"Can we go over this together before the meeting?",book:"Workplace"},
+  {chunk:"It happened naturally.",exp:"Something changed without force",ex:"I didn't force it. It happened naturally.",book:"Natural"},
+  {chunk:"It came naturally.",exp:"A word or action came out easily",ex:"After enough practice, it started to come naturally.",book:"Natural"},
+  {chunk:"It started to feel natural.",exp:"Something began to feel smooth",ex:"The rhythm started to feel natural.",book:"Natural"},
+  {chunk:"I didn't force it.",exp:"Improvement happened without pressure",ex:"I didn't force it. I just kept repeating it.",book:"Natural"},
+  {chunk:"I noticed that ...",exp:"Became aware of a pattern",ex:"I noticed that I speak faster when I'm prepared.",book:"Natural"},
+  {chunk:"I realized that ...",exp:"Reached stronger understanding",ex:"I realized that motivation matters a lot.",book:"Natural"},
+];
+const SET_B=[
+  {chunk:"Let me get back to you on that.",exp:"Cannot answer right away",ex:"Let me get back to you on that.",book:"Workplace"},
+  {chunk:"Let's come back to that later.",exp:"Postpone the topic",ex:"Let's come back to that later.",book:"Workplace"},
+  {chunk:"I'm stuck on this part.",exp:"Cannot move forward",ex:"I'm stuck on this part of the backend flow.",book:"Workplace"},
+  {chunk:"I'm having trouble with ...",exp:"Something is difficult",ex:"I'm having trouble with the API response handling.",book:"Workplace"},
+  {chunk:"This isn't working as expected.",exp:"Result is wrong",ex:"This isn't working as expected in the test environment.",book:"Workplace"},
+  {chunk:"Sorry, could you say that again?",exp:"Need repetition",ex:"Sorry, could you say that again?",book:"Workplace"},
+  {chunk:"Looking back, ...",exp:"Reflect on the past",ex:"Looking back, I was much less productive a week ago.",book:"Natural"},
+  {chunk:"Somehow, ...",exp:"Cannot fully explain it",ex:"Somehow, it was easier today.",book:"Natural"},
+  {chunk:"I guess ...",exp:"Softer statement",ex:"I guess repetition really helps.",book:"Natural"},
+  {chunk:"I feel like ...",exp:"Personal impressions",ex:"I feel like I'm getting used to it.",book:"Natural"},
+  {chunk:"Over time, ...",exp:"Change took repeated experience",ex:"Over time, it became more natural.",book:"Natural"},
+];
+const SET_C=[
+  {chunk:"Sorry for the delay.",exp:"Late or slow to respond",ex:"Sorry for the delay. Here's the update.",book:"Workplace"},
+  {chunk:"Let me know if I can help.",exp:"Offer support",ex:"Let me know if I can help with anything.",book:"Workplace"},
+  {chunk:"I can take care of that.",exp:"Willing to handle a task",ex:"I can take care of that this afternoon.",book:"Workplace"},
+  {chunk:"How's your day going?",exp:"Light work conversation",ex:"How's your day going so far?",book:"Workplace"},
+  {chunk:"How was your weekend?",exp:"Monday or after a break",ex:"How was your weekend?",book:"Workplace"},
+  {chunk:"Before I knew it, ...",exp:"Change happened sooner than expected",ex:"Before I knew it, I was saying it smoothly.",book:"Natural"},
+  {chunk:"It just came out that way.",exp:"Result was spontaneous",ex:"I didn't plan it. It just came out that way.",book:"Natural"},
+  {chunk:"It turned out better than I expected.",exp:"Result was surprisingly good",ex:"It turned out better than I expected.",book:"Natural"},
+  {chunk:"That felt good.",exp:"Something gave a satisfying feeling",ex:"That felt good. I spoke more smoothly today.",book:"Natural"},
+  {chunk:"That's huge.",exp:"Something matters a lot",ex:"That's huge. I finally feel some progress.",book:"Natural"},
+];
+
+const data0=[
+  {cat:"A. Progress",items:[
+    ["I'm working on it.","Task is in progress","I'm working on it now."],
+    ["It's in progress.","Neutral status update","The feature is in progress."],
+    ["I've finished that part.","One section is done","I've finished that part, but I still need to test it."],
+    ["I'm almost done.","Close to finishing","I'm almost done with the API changes."],
+    ["I still need some time.","Not finished yet","I still need some time to check the issue."],
+  ]},
+  {cat:"B. Confirming",items:[
+    ["Just to make sure I understand...","Confirm politely","Just to make sure I understand, you want this by Friday, right?"],
+    ["Can I check one thing?","Short clarification","Can I check one thing? Which environment are we using?"],
+    ["So, if I understand correctly...","Restate and confirm","So, if I understand correctly, we're changing only the frontend."],
+    ["Do you mean ... ?","Confirm meaning directly","Do you mean the production database?"],
+    ["What exactly do you mean by ... ?","Term is vague","What exactly do you mean by \"done\"?"],
+  ]},
+  {cat:"C. Asking help",items:[
+    ["Could you take a look?","Want someone to check","Could you take a look at this PR?"],
+    ["Can you help me with this?","Need support","Can you help me with this issue?"],
+    ["Would you mind checking this?","Softer request","Would you mind checking this logic?"],
+    ["Could you send that to me?","Need a file or link","Could you send that to me when you have a moment?"],
+    ["Can we go over this together?","Review together","Can we go over this together before the meeting?"],
+  ]},
+  {cat:"D. Delaying",items:[
+    ["Let's come back to that later.","Postpone the topic","Let's come back to that later."],
+    ["We can discuss that later.","Point is not urgent","We can discuss that later after the release."],
+    ["I'll look into it first.","Need to investigate","I'll look into it first and get back to you."],
+    ["Let me get back to you on that.","Cannot answer right away","Let me get back to you on that."],
+    ["I need a bit more time to think about it.","Not ready to decide","I need a bit more time to think about it."],
+  ]},
+  {cat:"E. Problems",items:[
+    ["I'm stuck on this part.","Cannot move forward","I'm stuck on this part of the backend flow."],
+    ["I'm having trouble with ...","Something is difficult","I'm having trouble with the API response handling."],
+    ["This isn't working as expected.","Result is wrong","This isn't working as expected in the test environment."],
+    ["I'm not sure about this part.","Lack confidence","I'm not sure about this part of the requirements."],
+    ["I need to double-check that.","Don't want to answer too quickly","I need to double-check that before I say for sure."],
+  ]},
+  {cat:"F. Apologies",items:[
+    ["Sorry, I missed that.","Didn't catch something","Sorry, I missed that. Could you say it again?"],
+    ["Sorry, I'm a bit lost.","Cannot follow the discussion","Sorry, I'm a bit lost. Which ticket are we talking about?"],
+    ["Sorry, could you say that again?","Need repetition","Sorry, could you say that again?"],
+    ["My bad.","Small casual mistake","My bad. I was looking at the wrong file."],
+    ["Sorry for the delay.","Late or slow to respond","Sorry for the delay. Here's the update."],
+  ]},
+  {cat:"G. Offering help",items:[
+    ["Let me know if I can help.","Offer support","Let me know if I can help with anything."],
+    ["I can take care of that.","Willing to handle a task","I can take care of that this afternoon."],
+    ["I'm happy to help.","Sound friendly","I'm happy to help if needed."],
+    ["If you want, I can check it too.","Offer an extra check","If you want, I can check it too."],
+    ["We can work on it together.","Collaboration is better","We can work on it together after lunch."],
+  ]},
+  {cat:"H. Clarifying",items:[
+    ["I'm not sure I follow.","Explanation is unclear","I'm not sure I follow. Could you explain that part again?"],
+    ["Could you clarify that?","Want clearer explanation","Could you clarify that requirement?"],
+    ["What does that mean in practice?","Something sounds abstract","What does that mean in practice for the current release?"],
+    ["Are we talking about ... ?","Narrow the topic","Are we talking about the frontend only?"],
+    ["Just to be clear, ...","Avoid misunderstanding","Just to be clear, this is only for internal use, right?"],
+  ]},
+  {cat:"I. Small talk",items:[
+    ["How's your day going?","Light work conversation","How's your day going so far?"],
+    ["How was your weekend?","Monday or after a break","How was your weekend?"],
+    ["Do you have any plans for the weekend?","Thursday or Friday","Do you have any plans for the weekend?"],
+    ["It's been busy today.","Comment on the day","It's been busy today."],
+    ["That sounds nice.","Light positive response","That sounds nice. I hope you enjoy it."],
+  ]},
+  {cat:"J. Meetings",items:[
+    ["Shall we get started?","Begin a meeting","Shall we get started?"],
+    ["I think we're ready to start.","Everyone seems prepared","I think we're ready to start."],
+    ["Thanks, that was helpful.","Close a useful discussion","Thanks, that was helpful."],
+    ["That was a good discussion.","After a productive conversation","That was a good discussion."],
+    ["I'll follow up on that.","Will act later","I'll follow up on that and send an update."],
+  ]},
+];
+
+const data1=[
+  {cat:"A. Natural change",items:[
+    ["It happened naturally.","Something changed without force","I didn't force it. It happened naturally."],
+    ["It just happened naturally.","Even more casual","When I practiced in full sentences, it just happened naturally."],
+    ["It came naturally.","A word or action came out easily","After enough practice, it started to come naturally."],
+    ["It started to come naturally.","Process still developing","This phrase started to come naturally after a lot of repetition."],
+    ["It started to feel natural.","Something began to feel smooth","The rhythm started to feel natural."],
+    ["It became natural.","Now settled","At some point, it became natural."],
+  ]},
+  {cat:"B. Not forcing",items:[
+    ["I didn't force it.","Improvement happened without pressure","I didn't force it. I just kept repeating it."],
+    ["I wasn't trying too hard.","You were relaxed","I wasn't trying too hard. I was just saying it naturally."],
+    ["It wasn't intentional.","Something happened without planning","It wasn't intentional. It just came out that way."],
+    ["I wasn't doing it on purpose.","Very clear statement","I wasn't doing it on purpose. It just happened."],
+  ]},
+  {cat:"C. Realization",items:[
+    ["I noticed that ...","Became aware of a pattern","I noticed that I speak faster when I'm prepared."],
+    ["I realized that ...","Reached stronger understanding","I realized that motivation matters a lot."],
+    ["It made me realize that ...","One experience taught you something","Today made me realize that this might be my natural speed."],
+    ["That made me think.","Got a new perspective","That made me think about how I practice."],
+    ["Looking back, ...","Reflect on the past","Looking back, I was much less productive a week ago."],
+  ]},
+  {cat:"D. Vague / soft",items:[
+    ["Somehow, ...","Cannot fully explain it","Somehow, it was easier today."],
+    ["Kind of ...","Something is partly true","It kind of started to sound more natural."],
+    ["Sort of ...","Similar to 'kind of'","I sort of knew what I wanted to say."],
+    ["I guess ...","Softer statement","I guess repetition really helps."],
+    ["I feel like ...","Personal impressions","I feel like I'm getting used to it."],
+  ]},
+  {cat:"E. Gradual change",items:[
+    ["Little by little, ...","Change happened slowly","Little by little, it got easier."],
+    ["Over time, ...","Change took repeated experience","Over time, it became more natural."],
+    ["At some point, ...","Don't know the exact moment","At some point, it stopped feeling awkward."],
+    ["Before I knew it, ...","Change happened sooner than expected","Before I knew it, I was saying it smoothly."],
+    ["It grew on me.","Strange at first, later felt good","That phrase felt odd at first, but it grew on me."],
+  ]},
+  {cat:"F. Casual outcome",items:[
+    ["It just came out that way.","Result was spontaneous","I didn't plan it. It just came out that way."],
+    ["That's just how it came out.","Explain output casually","That's just how it came out when I said it fast."],
+    ["That's how it ended up sounding.","Pronunciation or phrasing","That's how it ended up sounding after repetition."],
+    ["That's just what happened.","Don't want to over-explain","I didn't really think about it. That's just what happened."],
+    ["It turned out better than I expected.","Result was surprisingly good","It turned out better than I expected."],
+  ]},
+  {cat:"G. Positive reaction",items:[
+    ["That felt good.","Something gave a satisfying feeling","That felt good. I spoke more smoothly today."],
+    ["I'm happy with that.","Satisfied with a result","I'm happy with that. It was much better than last time."],
+    ["That was nice.","Simple positive reaction","That was nice. I enjoyed the lesson."],
+    ["That's huge.","Something matters a lot","That's huge. I finally feel some progress."],
+    ["That's a big deal for me.","Something feels personally important","Being able to practice out loud is a big deal for me."],
+  ]},
+  {cat:"H. Cambly flow",items:[
+    ["Let me think for a moment.","Pause without silence — control the conversation","Let me think for a moment. I know I have something to say."],
+    ["I lost my train of thought.","Recover mid-conversation","Sorry, I lost my train of thought. Where was I?"],
+    ["I was really into the conversation.","Show engagement / explain higher WPM","I was really into the conversation. I didn't even notice the time."],
+    ["My goal is to keep talking without being afraid of making mistakes.","State Cambly practice intention","My goal is to keep talking without being afraid of making mistakes."],
+  ]},
+];
+
+let curMode='active';
+let curBook=0;
+let curRot='today';
+let curCat=[0,0];
+
+const SET_LABELS={today:'First 12 — start here (+2 Cambly flow)',a:'Set A — Day 1–3 (11 chunks)',b:'Set B — Day 4–6 (11 chunks)',c:'Set C — Day 7–9 (10 chunks)'};
+const SET_DATA={today:SET_TODAY,a:SET_A,b:SET_B,c:SET_C};
+const SET_CLASS={today:'set-today',a:'set-a',b:'set-b',c:'set-c'};
+
+function renderRot(key){
+  curRot=key;
+  document.querySelectorAll('.rot-tab').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.rot-tab').forEach(b=>{if(b.textContent.toLowerCase().replace('set ','')===key||b.textContent.toLowerCase()===key)b.classList.add('active')});
+  const items=SET_DATA[key];
+  document.getElementById('rot-count').textContent=SET_LABELS[key];
+  const tbody=document.getElementById('rot-rows');
+  tbody.innerHTML='';
+  items.forEach((row,i)=>{
+    const tr=document.createElement('tr');
+    tr.className=key==='today'?'is-today':'is-core';
+    tr.innerHTML=`<td style="color:#555;font-size:12px;min-width:24px">${i+1}</td><td class="chunk">${row.chunk}</td><td class="exp">${row.exp}</td><td class="ex">${row.ex}</td><td><span class="set-badge ${SET_CLASS[key]}">${row.book}</span></td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+function switchRot(key){
+  renderRot(key);
+}
+
+function buildCats(bookIdx){
+  const data=bookIdx===0?data0:data1;
+  const core=bookIdx===0?CORE0:CORE1;
+  const container=document.getElementById('cats'+bookIdx);
+  container.innerHTML='';
+  data.forEach((c,i)=>{
+    if(curMode==='active'){
+      if(!c.items.some(r=>core.has(r[0])))return;
+    }
+    const btn=document.createElement('button');
+    btn.className='cat-tab';
+    btn.textContent=c.cat;
+    btn.dataset.idx=i;
+    btn.onclick=()=>showCat(bookIdx,i);
+    container.appendChild(btn);
+  });
+  const first=container.querySelector('.cat-tab');
+  if(first){
+    const idx=parseInt(first.dataset.idx);
+    curCat[bookIdx]=idx;
+    first.classList.add('active');
+    showCat(bookIdx,idx,true);
+  }
+}
+
+function showCat(bookIdx,catIdx,skipUpdate){
+  curCat[bookIdx]=catIdx;
+  const core=bookIdx===0?CORE0:CORE1;
+  const data=bookIdx===0?data0:data1;
+  if(!skipUpdate){
+    document.querySelectorAll('#cats'+bookIdx+' .cat-tab').forEach(b=>{
+      b.classList.toggle('active',parseInt(b.dataset.idx)===catIdx);
+    });
+  }
+  const tbody=document.getElementById('rows'+bookIdx);
+  let items=data[catIdx].items;
+  if(curMode==='active') items=items.filter(r=>core.has(r[0]));
+  tbody.innerHTML='';
+  let n=0;
+  items.forEach(row=>{
+    const isCore=core.has(row[0]);
+    const tr=document.createElement('tr');
+    if(isCore) tr.className='is-core';
+    tr.innerHTML=`<td style="color:#555;font-size:12px;min-width:24px">${++n}</td><td class="chunk">${isCore&&curMode==='reference'?'<span class="core-dot"></span>':''}${row[0]}</td><td class="exp">${row[1]}</td><td class="ex">${row[2]}</td>`;
+    tbody.appendChild(tr);
+  });
+  const total=data.reduce((s,c)=>s+c.items.length,0);
+  const coreTotal=data.reduce((s,c)=>s+c.items.filter(r=>core.has(r[0])).length,0);
+  const el=document.getElementById('count'+bookIdx);
+  el.textContent=curMode==='active'
+    ?`Showing ${items.length} of ${coreTotal} active core chunks`
+    :`Showing ${items.length} of ${total} chunks — green dot = active core`;
+}
+
+function switchMode(mode){
+  curMode=mode;
+  document.querySelectorAll('.mode-btn').forEach((b,i)=>{
+    b.classList.toggle('active',['rotation','active','reference'][i]===mode);
+  });
+  const rotPanel=document.getElementById('rotation-panel');
+  const bookPanels=document.getElementById('book-panels');
+  const bookToggle=document.getElementById('book-toggle');
+  if(mode==='rotation'){
+    rotPanel.style.display='block';
+    bookPanels.style.display='none';
+    bookToggle.style.display='none';
+    renderRot(curRot);
+  } else {
+    rotPanel.style.display='none';
+    bookPanels.style.display='block';
+    bookToggle.style.display='flex';
+    [0,1].forEach(bi=>{
+      document.getElementById('b'+bi+'-info').style.display=mode==='active'?'block':'none';
+    });
+    buildCats(curBook);
+  }
+}
+
+function switchBook(idx){
+  curBook=idx;
+  document.querySelectorAll('.book-btn').forEach((b,i)=>b.classList.toggle('active',i===idx));
+  document.getElementById('book0').className='book-section'+(idx===0?' visible':'');
+  document.getElementById('book1').className='book-section'+(idx===1?' visible':'');
+  buildCats(idx);
+}
+
+buildCats(0);buildCats(1);
+switchMode('active');
+</script>
+</body>
+</html>

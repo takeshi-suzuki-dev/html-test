@@ -1,0 +1,217 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+#app{font-family:var(--font-sans);max-width:420px;margin:0 auto}
+.sticky-top{position:sticky;top:0;z-index:10;background:var(--color-background-primary);padding:12px 0 8px;border-bottom:0.5px solid var(--color-border-tertiary)}
+.search-row{padding:0 16px 8px}
+.search-row input{width:100%;height:42px;font-size:15px;padding:0 12px;border-radius:var(--border-radius-lg);border:0.5px solid var(--color-border-secondary);background:var(--color-background-secondary);color:var(--color-text-primary)}
+.search-row input::placeholder{color:var(--color-text-tertiary)}
+.filter-row{display:flex;gap:8px;overflow-x:auto;padding:0 16px 2px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.filter-row::-webkit-scrollbar{display:none}
+.chip{flex-shrink:0;height:34px;padding:0 14px;border-radius:20px;border:0.5px solid var(--color-border-secondary);background:transparent;color:var(--color-text-secondary);font-size:13px;cursor:pointer;white-space:nowrap;font-family:var(--font-sans)}
+.chip.on{background:var(--color-background-secondary);color:var(--color-text-primary);border-color:var(--color-border-primary);font-weight:500}
+.body{padding:12px 16px 24px}
+.section-label{font-size:11px;font-weight:500;letter-spacing:0.08em;text-transform:uppercase;color:var(--color-text-tertiary);margin:16px 0 8px;padding-bottom:6px;border-bottom:0.5px solid var(--color-border-tertiary)}
+.section-label:first-child{margin-top:4px}
+.card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:12px 14px;margin-bottom:8px;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.card:active{background:var(--color-background-secondary)}
+.card-top{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.en{font-size:15px;font-weight:500;color:var(--color-text-primary);flex:1;min-width:0}
+.badge{font-size:10px;padding:3px 8px;border-radius:20px;font-weight:500;white-space:nowrap;flex-shrink:0}
+.b1{background:#E6F1FB;color:#0C447C}
+.b2{background:#E1F5EE;color:#085041}
+.b3{background:#FAEEDA;color:#633806}
+.b4{background:#FBEAF0;color:#72243E}
+@media(prefers-color-scheme:dark){
+  .b1{background:#0C447C;color:#B5D4F4}
+  .b2{background:#085041;color:#9FE1CB}
+  .b3{background:#633806;color:#FAC775}
+  .b4{background:#72243E;color:#F4C0D1}
+}
+.jp{font-size:13px;color:var(--color-text-secondary);width:100%}
+.ex{font-size:13px;color:var(--color-text-tertiary);font-style:italic;line-height:1.55;margin-top:6px;padding-top:8px;border-top:0.5px solid var(--color-border-tertiary);display:none}
+.card.open .ex{display:block}
+.count{font-size:12px;color:var(--color-text-tertiary);text-align:center;padding:8px 0 4px}
+.empty{text-align:center;padding:3rem 1rem;color:var(--color-text-tertiary);font-size:14px}
+</style>
+<div id="app">
+  <div class="sticky-top">
+    <div class="search-row">
+      <input type="search" id="q" placeholder="英語・日本語で検索…" oninput="render()">
+    </div>
+    <div class="filter-row" id="chips"></div>
+  </div>
+  <div class="body" id="list"></div>
+</div>
+<script>
+const cats=[
+  {id:'all',label:'すべて'},
+  {id:'incident',label:'障害・バグ'},
+  {id:'feature',label:'機能開発'},
+  {id:'comm',label:'コミュニケーション'},
+  {id:'process',label:'プロセス'},
+  {id:'testing',label:'テスト'},
+  {id:'deploy',label:'デプロイ・リリース'},
+  {id:'arch',label:'アーキテクチャ'},
+  {id:'design',label:'技術設計'},
+  {id:'lead',label:'テックリード'},
+  {id:'senior',label:'上級表現'},
+];
+const sections={
+  incident:{title:'Incident · bug handling',layer:1},
+  feature:{title:'Feature development',layer:1},
+  comm:{title:'Daily communication',layer:1},
+  process:{title:'Development process',layer:2},
+  testing:{title:'Testing',layer:2},
+  deploy:{title:'Deploy · release',layer:2},
+  arch:{title:'Architecture & system design',layer:3},
+  design:{title:'Technical design & trade-offs',layer:3},
+  lead:{title:'Tech lead responsibilities',layer:4},
+  senior:{title:'Senior-level communication',layer:4},
+};
+const vocab=[
+  {l:1,c:'incident',en:'fix a bug',jp:'バグを修正する',ex:'I fixed a bug in the payment flow yesterday.'},
+  {l:1,c:'incident',en:'resolve an issue',jp:'問題を解決する',ex:'We resolved the issue before the release.'},
+  {l:1,c:'incident',en:'investigate the root cause',jp:'根本原因を調査する',ex:'I spent the morning investigating the root cause.'},
+  {l:1,c:'incident',en:'reproduce the issue',jp:'事象を再現する',ex:'Could you help me reproduce the issue?'},
+  {l:1,c:'incident',en:'assess the impact / identify the scope',jp:'影響範囲を調査する',ex:'First I assessed the impact across all related modules.'},
+  {l:1,c:'incident',en:'apply a workaround / temporary fix',jp:'応急処置を行う',ex:'We applied a workaround to keep the service running.'},
+  {l:1,c:'incident',en:'implement a permanent fix',jp:'恒久対応を実施する',ex:'The permanent fix was deployed in the next sprint.'},
+  {l:1,c:'incident',en:'escalate the issue',jp:'問題をエスカレーションする',ex:'I escalated the issue to the team lead.'},
+  {l:1,c:'incident',en:'report the status / provide an update',jp:'状況を報告する',ex:'I provided an update to the stakeholders each morning.'},
+  {l:1,c:'incident',en:'roll back the change',jp:'変更を切り戻す',ex:'We decided to roll back the change immediately.'},
+  {l:1,c:'feature',en:'implement a feature',jp:'機能を実装する',ex:'I implemented the search feature in two days.'},
+  {l:1,c:'feature',en:'be in charge of / be responsible for',jp:'〜を担当する',ex:'I was responsible for the backend API design.'},
+  {l:1,c:'feature',en:'take ownership of',jp:'〜を担当・主導する',ex:'I took ownership of the migration task.'},
+  {l:1,c:'feature',en:'work on a task / handle a requirement',jp:'タスク・要件を担当する',ex:'I worked on the user authentication requirement.'},
+  {l:1,c:'feature',en:'refactor the code',jp:'コードをリファクタリングする',ex:'I refactored the service layer to reduce duplication.'},
+  {l:1,c:'feature',en:'optimize performance',jp:'パフォーマンスを改善する',ex:'I optimized the SQL query to reduce response time.'},
+  {l:1,c:'feature',en:'add / update / remove functionality',jp:'機能を追加・更新・削除する',ex:'We added pagination support to the list API.'},
+  {l:1,c:'comm',en:'This is taking longer than expected.',jp:'予想より時間がかかっています。',ex:'This is taking longer than expected — could you take a look with me?'},
+  {l:1,c:'comm',en:'Could you take a look at this with me?',jp:'一緒に見てもらえますか？',ex:"I'm stuck on this error — could you take a look with me?"},
+  {l:1,c:'comm',en:"I'm having trouble with / I'm stuck on",jp:'〜で詰まっています',ex:"I'm having trouble with the dependency injection setup."},
+  {l:1,c:'comm',en:"Can I get your input on this?",jp:'意見を聞かせてもらえますか？',ex:"Can I get your input on the API design before I proceed?"},
+  {l:1,c:'comm',en:'Let me walk you through it.',jp:'説明させてください。',ex:'Let me walk you through the current implementation.'},
+  {l:1,c:'comm',en:"I'll get back to you on that.",jp:'後で確認してご連絡します。',ex:"I'm not sure right now — I'll get back to you on that."},
+  {l:1,c:'comm',en:"I'm currently working on...",jp:'現在〜に取り組んでいます',ex:"I'm currently working on the authentication module."},
+  {l:1,c:'comm',en:"I've completed...",jp:'〜が完了しました',ex:"I've completed the unit tests for the service layer."},
+  {l:1,c:'comm',en:"There's a blocker / I'm blocked by...",jp:'ブロッカーがあります',ex:"There's a blocker — I can't proceed until the API spec is finalized."},
+  {l:1,c:'comm',en:'Could you say that again? / Could you clarify that?',jp:'もう一度言っていただけますか？',ex:"Sorry, could you say that again? I want to make sure I understand."},
+  {l:1,c:'comm',en:'I want to make sure I understand correctly.',jp:'正しく理解しているか確認したいです。',ex:"I want to make sure I understand correctly — are you asking about X or Y?"},
+  {l:2,c:'process',en:'requirements gathering / requirements analysis',jp:'要件定義',ex:'We spent two weeks on requirements gathering with the client.'},
+  {l:2,c:'process',en:'high-level design / basic design',jp:'基本設計',ex:'I was in charge of the high-level design for this module.'},
+  {l:2,c:'process',en:'detailed design',jp:'詳細設計',ex:'The detailed design document was reviewed by the whole team.'},
+  {l:2,c:'process',en:'implementation / coding',jp:'実装',ex:'After the detailed design, I moved on to implementation.'},
+  {l:2,c:'process',en:'code review',jp:'コードレビュー',ex:'All pull requests go through code review before merging.'},
+  {l:2,c:'process',en:'pull request (PR)',jp:'プルリクエスト',ex:'I submitted a pull request for the new feature.'},
+  {l:2,c:'process',en:'merge / approve / request changes',jp:'マージ・承認・修正依頼',ex:'The reviewer approved my PR and merged it into main.'},
+  {l:2,c:'process',en:'sprint / sprint planning / sprint review',jp:'スプリント',ex:'We plan our tasks at the start of each sprint.'},
+  {l:2,c:'process',en:'daily standup / daily scrum',jp:'朝会・デイリースクラム',ex:'We share blockers every morning at the standup.'},
+  {l:2,c:'process',en:'retrospective',jp:'振り返り・レトロ',ex:'We hold a retrospective at the end of each sprint.'},
+  {l:2,c:'testing',en:'write / create test cases',jp:'テスト仕様書を作成する',ex:'I wrote test cases for all the edge cases in the API.'},
+  {l:2,c:'testing',en:'unit testing',jp:'単体テスト',ex:'I ran unit tests after every code change.'},
+  {l:2,c:'testing',en:'integration testing',jp:'結合テスト',ex:'We ran integration tests before submitting for QA.'},
+  {l:2,c:'testing',en:'system testing',jp:'システムテスト',ex:'System testing covered the end-to-end user flows.'},
+  {l:2,c:'testing',en:'user acceptance testing (UAT)',jp:'受け入れテスト',ex:'The client ran UAT and approved the release.'},
+  {l:2,c:'testing',en:'test coverage',jp:'テストカバレッジ',ex:'We aimed for at least 80% test coverage on the service layer.'},
+  {l:2,c:'testing',en:'regression testing',jp:'リグレッションテスト',ex:'We run regression tests before every major release.'},
+  {l:2,c:'deploy',en:'deploy / deployment',jp:'デプロイ',ex:'We deployed the fix to production late at night.'},
+  {l:2,c:'deploy',en:'release',jp:'リリース',ex:'The release went smoothly with no major issues.'},
+  {l:2,c:'deploy',en:'rollback',jp:'ロールバック・切り戻し',ex:'We triggered a rollback after the error rate spiked.'},
+  {l:2,c:'deploy',en:'hotfix',jp:'緊急修正',ex:'I pushed a hotfix within an hour of the incident.'},
+  {l:2,c:'deploy',en:'staging environment',jp:'ステージング環境',ex:'We always test in staging before deploying to production.'},
+  {l:2,c:'deploy',en:'production environment',jp:'本番環境',ex:'The bug only appeared in the production environment.'},
+  {l:2,c:'deploy',en:'CI/CD pipeline',jp:'CI/CDパイプライン',ex:'Our CI/CD pipeline runs tests automatically on every push.'},
+
+  {l:3,c:'arch',en:'monolithic architecture',jp:'モノリシックアーキテクチャ',ex:'The system started as a monolith, which made it hard to scale individual components.'},
+  {l:3,c:'arch',en:'microservices architecture',jp:'マイクロサービスアーキテクチャ',ex:'We migrated to microservices to allow independent deployment of each domain.'},
+  {l:3,c:'arch',en:'layered architecture (n-tier)',jp:'レイヤードアーキテクチャ',ex:'We structured the backend using a layered architecture: controller, service, and repository.'},
+  {l:3,c:'arch',en:'API gateway',jp:'APIゲートウェイ',ex:'All client requests pass through the API gateway for routing and authentication.'},
+  {l:3,c:'arch',en:'load balancing',jp:'負荷分散',ex:'We added load balancing to distribute traffic across multiple instances.'},
+  {l:3,c:'arch',en:'horizontal scaling / vertical scaling',jp:'水平スケーリング / 垂直スケーリング',ex:'We chose horizontal scaling to handle traffic spikes without downtime.'},
+  {l:3,c:'arch',en:'caching strategy',jp:'キャッシュ戦略',ex:'We introduced a caching layer to reduce database load on read-heavy endpoints.'},
+  {l:3,c:'arch',en:'message queue / event-driven architecture',jp:'メッセージキュー / イベント駆動',ex:'We decoupled the services using a message queue to handle asynchronous processing.'},
+  {l:3,c:'arch',en:'fault tolerance / resilience',jp:'耐障害性・レジリエンス',ex:'We added circuit breakers to improve the system\'s fault tolerance.'},
+  {l:3,c:'arch',en:'observability (logging, metrics, tracing)',jp:'オブザーバビリティ',ex:'We improved observability by adding distributed tracing across all services.'},
+  {l:3,c:'arch',en:'containerization',jp:'コンテナ化',ex:'We containerized the application using Docker for consistent environments.'},
+  {l:3,c:'arch',en:'infrastructure as code (IaC)',jp:'コードによるインフラ管理',ex:'We manage our AWS resources as infrastructure as code using Terraform.'},
+
+  {l:3,c:'design',en:'trade-off analysis',jp:'トレードオフの検討',ex:'We did a trade-off analysis between consistency and availability.'},
+  {l:3,c:'design',en:'define the data model / schema design',jp:'データモデル設計',ex:'I led the schema design for the new billing module.'},
+  {l:3,c:'design',en:'separation of concerns',jp:'関心の分離',ex:'We refactored the code to improve separation of concerns between layers.'},
+  {l:3,c:'design',en:'single responsibility principle (SRP)',jp:'単一責任の原則',ex:'Each class follows the single responsibility principle to keep things maintainable.'},
+  {l:3,c:'design',en:'dependency injection',jp:'依存性の注入',ex:'We use Spring\'s dependency injection to keep the service layer loosely coupled.'},
+  {l:3,c:'design',en:'idempotency',jp:'べき等性',ex:'The API endpoint is idempotent — retrying the same request produces the same result.'},
+  {l:3,c:'design',en:'eventual consistency',jp:'結果整合性',ex:'We accepted eventual consistency to improve write throughput in this module.'},
+  {l:3,c:'design',en:'design document / technical spec',jp:'設計書・技術仕様書',ex:'I authored the design document and got it reviewed before implementation.'},
+  {l:3,c:'design',en:'architectural decision record (ADR)',jp:'アーキテクチャ決定記録',ex:'We document every major design choice as an ADR so the rationale is preserved.'},
+  {l:3,c:'design',en:'technical debt',jp:'技術的負債',ex:'We allocated 20% of each sprint to address accumulated technical debt.'},
+
+  {l:4,c:'lead',en:'break down tasks / decompose requirements',jp:'タスクを分割する',ex:'I broke down the feature into smaller tasks so the team could work in parallel.'},
+  {l:4,c:'lead',en:'provide / give an estimate',jp:'見積もりを出す',ex:'I gave a rough estimate of two sprints for the migration work.'},
+  {l:4,c:'lead',en:'set / clarify priorities',jp:'優先順位を決める',ex:'I worked with the PM to clarify priorities at the start of the sprint.'},
+  {l:4,c:'lead',en:'unblock a team member',jp:'メンバーのブロッカーを解消する',ex:'I spent the morning unblocking a junior engineer who was stuck on the API contract.'},
+  {l:4,c:'lead',en:'conduct a code review / give feedback',jp:'コードレビューを行う',ex:'I conducted code reviews daily and gave constructive feedback to the team.'},
+  {l:4,c:'lead',en:'mentor / mentor a junior engineer',jp:'メンタリングする',ex:'I mentored two junior engineers on design patterns and testing practices.'},
+  {l:4,c:'lead',en:'knowledge transfer (KT)',jp:'ナレッジトランスファー',ex:'I led the knowledge transfer sessions when our team took over the legacy system.'},
+  {l:4,c:'lead',en:'align with stakeholders',jp:'ステークホルダーと認識を合わせる',ex:'I aligned with stakeholders on scope before starting the design phase.'},
+  {l:4,c:'lead',en:'drive the design / lead the technical direction',jp:'技術方針を主導する',ex:'I drove the design for the new notification service end to end.'},
+  {l:4,c:'lead',en:'post-mortem / incident review',jp:'障害振り返り・ポストモーテム',ex:'I facilitated the post-mortem and documented the action items.'},
+
+  {l:4,c:'senior',en:"My concern with that approach is...",jp:'そのアプローチへの懸念は〜です',ex:"My concern with that approach is the latency impact on downstream services."},
+  {l:4,c:'senior',en:"I'd propose an alternative where...",jp:'別の案として〜を提案します',ex:"I'd propose an alternative where we cache at the gateway level instead."},
+  {l:4,c:'senior',en:"The trade-off here is X versus Y.",jp:'ここでのトレードオフはXとYです',ex:"The trade-off here is development speed versus long-term maintainability."},
+  {l:4,c:'senior',en:"We need to validate the assumption that...",jp:'〜という前提を検証する必要があります',ex:"We need to validate the assumption that reads will dominate the workload."},
+  {l:4,c:'senior',en:"This could become a bottleneck if...",jp:'〜になるとボトルネックになる可能性があります',ex:"This could become a bottleneck if the request volume doubles."},
+  {l:4,c:'senior',en:"Let me share my reasoning.",jp:'考え方を説明させてください',ex:"Let me share my reasoning for choosing a queue-based approach here."},
+  {l:4,c:'senior',en:"I've seen this pattern before — the risk is...",jp:'このパターンは経験があります。リスクは〜です',ex:"I've seen this pattern before — the risk is that it becomes hard to test in isolation."},
+  {l:4,c:'senior',en:"We should define the acceptance criteria first.",jp:'まず受け入れ条件を決めるべきです',ex:"We should define the acceptance criteria first before estimating the effort."},
+  {l:4,c:'senior',en:"I'd like to flag a risk early.",jp:'早めにリスクを共有しておきたいです',ex:"I'd like to flag a risk early — this depends on a third-party API we don't control."},
+  {l:4,c:'senior',en:"From a maintainability standpoint...",jp:'保守性の観点からは〜',ex:"From a maintainability standpoint, keeping the logic in the service layer makes more sense."},
+];
+
+let active='all';
+const chipEl=document.getElementById('chips');
+cats.forEach(cat=>{
+  const b=document.createElement('button');
+  b.className='chip'+(cat.id==='all'?' on':'');
+  b.textContent=cat.label;
+  b.onclick=()=>{
+    active=cat.id;
+    document.querySelectorAll('.chip').forEach(x=>x.classList.remove('on'));
+    b.classList.add('on');
+    render();
+  };
+  chipEl.appendChild(b);
+});
+
+function render(){
+  const q=(document.getElementById('q').value||'').toLowerCase();
+  const filtered=vocab.filter(v=>{
+    const mc=active==='all'||v.c===active;
+    const mq=!q||v.en.toLowerCase().includes(q)||v.jp.includes(q)||v.ex.toLowerCase().includes(q);
+    return mc&&mq;
+  });
+  const grouped={};
+  filtered.forEach(v=>{if(!grouped[v.c])grouped[v.c]=[];grouped[v.c].push(v);});
+  const el=document.getElementById('list');
+  if(!filtered.length){el.innerHTML='<div class="empty">該当する単語が見つかりません</div>';return;}
+  const badgeClass={1:'b1',2:'b2',3:'b3',4:'b4'};
+  el.innerHTML=Object.keys(sections).filter(k=>grouped[k]).map(k=>{
+    const s=sections[k];
+    const bc=badgeClass[s.layer];
+    const items=grouped[k].map(v=>`
+      <div class="card" onclick="this.classList.toggle('open')">
+        <div class="card-top">
+          <span class="en">${v.en}</span>
+          <span class="badge ${bc}">Layer ${v.l}</span>
+        </div>
+        <div class="jp">${v.jp}</div>
+        <div class="ex">"${v.ex}"</div>
+      </div>`).join('');
+    return `<div class="section-label">${s.title}</div>${items}`;
+  }).join('');
+  el.insertAdjacentHTML('beforeend',`<div class="count">${filtered.length}件</div>`);
+}
+render();
+</script>
